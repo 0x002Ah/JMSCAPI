@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre7"/>
+	<classpathentry kind="lib" path="D:/demo/jna.jar" sourcepath="D:/work/Диплом/JNA/Source/jna"/>
+	<classpathentry kind="lib" path="D:/demo/platform.jar" sourcepath="D:/work/Диплом/JNA/Source/platform"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
