@@ -904,6 +904,7 @@ public interface Advapi32 extends StdCallLibrary,JMSCAPI_misc {
 			IntByReference pdwDataLen	//inout DWORD*		data length
 			);
 	
+	void test();
 		
 	static int fake = 0;
 }
