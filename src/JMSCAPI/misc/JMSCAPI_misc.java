@@ -1,6 +1,5 @@
 package JMSCAPI.misc;
 
-import com.sun.jna.NativeMapped;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
 import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
@@ -18,7 +17,11 @@ public interface JMSCAPI_misc extends
 							CryptDestroyHash_misc,
 							CryptGetHashParam_misc,
 							CryptHashData_misc,
-							CryptDuplicateHash_misc
+							CryptDuplicateHash_misc,
+							CryptDecrypt_misc,
+							CryptEncrypt_misc,
+							CryptDeriveKey_misc,
+							CryptExportKey_misc
 
 
 																		{

@@ -9,14 +9,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.LinkedList;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-
-
 import JMSCAPI.Exceptions.CancelledByUser;
 import JMSCAPI.Exceptions.JMSCAPIException;
 import JMSCAPI.Exceptions.NotImplemented;
-import JMSCAPI.misc.JMSCAPI_misc;
 import JMSCAPI.misc.JMSCAPI_misc.HCRYPTHASH;
 import JMSCAPI.misc.JMSCAPI_misc.HCRYPTHASHp;
 import JMSCAPI.misc.JMSCAPI_misc.HCRYPTKEY;
@@ -27,7 +22,6 @@ import JMSCAPI.misc.JMSCAPI_misc.HCRYPTPROVp;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.Kernel32;
-import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.ptr.IntByReference;
 
 /**

@@ -674,12 +674,12 @@ public interface Advapi32 extends StdCallLibrary,JMSCAPI_misc {
 	 * 						series being encrypted. 				(<b>in</b>		BOOL		)		<br/>
 	 * 						Final is set to <b>TRUE</b> for the last or only block and to <b>FALSE</b>
 	 * 						if there are more blocks to be encrypted. For more information, 
-	 * 						see {@link JMSCAPI.misc.CryptDeriveKey_misc#remarks Remarks}.
+	 * 						see {@link JMSCAPI.misc.CryptEncrypt_misc#remarks Remarks}.
 	 * 																									<p>
 	 * @param dwFlags		Reserved for future use.				(<b>in</b>		DWORD		)
 	 * 																									<p>
 	 * @param pbData		A pointer to a buffer that contains the plaintext to be encrypted.
-	 * 																(<b>in</b>		BYTE*		)		<br/>
+	 * 																(<b>inout</b>	BYTE*		)		<br/>
 	 * 						The plaintext in this buffer is overwritten with the ciphertext created
 	 * 						by this function.
 	 * 																									<p>
@@ -737,6 +737,68 @@ public interface Advapi32 extends StdCallLibrary,JMSCAPI_misc {
 			IntByReference dwBufLen		//in    DWORD 		data buffer length
 			);
 	
+	/**
+	 * The <b>CryptDecrypt</b> function decrypts data previously encrypted by using the CryptEncrypt
+	 * function.
+	 * <p>
+	 * Important changes to support Secure/Multipurpose Internet Mail Extensions (S/MIME) email
+	 * interoperability have been made to CryptoAPI that affect the handling of enveloped messages.
+	 * For more information, see the Remarks section of CryptMsgOpenToEncode.
+	 * 
+	 * @param hKey			A handle to the key to use for the decryption.(<b>in</b>	HCRYPTKEY	)	<br/>
+	 * 						An application obtains this handle by using either the 						{@link #CryptGenKey
+	 * 						CryptGenKey} or the {@link #CryptImportKey CryptImportKey} function.
+	 * 																									<p>
+	 * 						This key specifies the decryption algorithm to be used.						
+	 * 																									<p> 
+	 * @param hHash			A handle to a hash object.				(<b>in</b>		HCRYPTHASH	)		<br/>
+ 							If data is to be decrypted and hashed simultaneously, a handle to
+ 							a hash object is passed in this parameter. The hash value is updated
+ 							with the decrypted plaintext. This option is useful when simultaneously
+ 							decrypting and verifying a signature.			
+ 																										<p>
+ 							Before calling <b>CryptDecrypt</b>, the application must obtain a handle
+ 							to the hash object by calling the {@link #CryptCreateHash CryptCreateHash}
+ 							function. After the decryption is complete, the hash value can be
+ 							obtained by using the {@link #CryptGetHashParam CryptGetHashParam}
+ 							function, it can also be signed by using the {@link #CryptSignHash 			CryptSignHash }
+ 							function, or it can be used to verify a digital signature by using the		{@link #CryptVerifySignature
+ 							CryptVerifySignature}  function.
+ 																										<p>
+ 							If no hash is to be done, this parameter must be zero.					
+ 																										<p>														
+	 * @param Final			A Boolean value that specifies whether this is the last section in a
+	 * 						series being encrypted. 				(<b>in</b>		BOOL		)		<br/>
+	 * 						Final is set to <b>TRUE</b> for the last or only block and to <b>FALSE</b>
+	 * 						if there are more blocks to be encrypted. For more information, 
+	 * 						see {@link JMSCAPI.misc.CryptDecrypt_misc#remarks Remarks}.
+	 * 																									<p>
+	 * @param dwFlags		The {@link JMSCAPI.misc.CryptDecrypt_misc#dwFlags following} flag
+	 * 						values are defined.						(<b>in</b>		DWORD		)
+	 * 																									<p>
+	 * @param pbData		A pointer to a buffer that contains the data to be decrypted.
+	 * 																(<b>inout</b>	BYTE*		)		<br/>
+	 * 						After the decryption has been performed, the plaintext is placed back
+	 * 						into this same buffer. 
+	 * 																									<p>
+	 * 						The number of encrypted bytes in this buffer is specified by
+	 * 						<b>pdwDataLen</b>.
+	 * 																									<p>
+	 * @param pdwDataLen	A pointer to a DWORD value that indicates the length of the <b>pbData</b>
+	 * 						buffer. 								(<b>inout</b>	DWORD*		)		<br/>
+	 * 						Before calling this function, the calling application sets the DWORD value
+	 * 						to the number of bytes to be decrypted. Upon return, the DWORD value
+	 * 						contains the number of bytes of the decrypted plaintext. 
+	 * 																									<p>
+	 * 						When a block cipher is used, this data length must be a multiple of the
+	 * 						block size unless this is the final section of data to be decrypted and
+	 * 						the <code>Final</code> parameter is <b>TRUE</b>.
+	 * 
+	 * @return If the function <b>succeeds</b>, the return value is nonzero <b>(TRUE)</b>.
+	 * If the function <b>fails</b>, the return value is zero <b>(FALSE)</b>. For extended error
+	 * information, call {@link  com.sun.jna.platform.win32.Kernel32#GetLastError() GetLastError}, 
+	 * then see {@link JMSCAPI.misc.CryptDecrypt_misc#error_codes error codes}.
+	 */
 	boolean CryptDecrypt(
 			HCRYPTKEY hKey,				//in	HCRYPTKEY 	A handle to the decryption key
 			HCRYPTHASH hHash,			//in    HCRYPTHASH 	A handle to a hash object
@@ -747,12 +809,104 @@ public interface Advapi32 extends StdCallLibrary,JMSCAPI_misc {
 			);
 	
 	/**
-	 * TODO CryptExportKey
-
-
-	 
+	 * The <b>CryptExportKey</b> function exports a cryptographic key or a key pair from a
+	 * cryptographic service provider (CSP) in a secure manner.
+	 * 																									<p>
+	 * A handle to the key to be exported is passed to the function, and the function returns
+	 * a key BLOB. This key BLOB can be sent over a nonsecure transport or stored in a nonsecure
+	 * storage location. This function can export an Schannel session key, regular session key,
+	 * public key, or public/private key pair. The key BLOB to export is useless until the
+	 * intended recipient uses the {@link #CryptImportKey CryptImportKey} function on it to import
+	 * the key or key pair into a recipient's CSP.
+	 * 
+	 * @param hKey			A handle to the key to be exported.		(<b>in</b>		HCRYPTKEY	)		
+	 * 																									<p>
+	 * @param hExpKey		A handle to a cryptographic key of the destination user.
+	 * 																(<b>in</b>		HCRYPTKEY	)		<br/>
+	 * 						The key data within the exported key BLOB is encrypted using this key.
+	 * 						This ensures that only the destination user is able to make use of the
+	 * 						key BLOB. Both <code>hExpKey</code> and <code>hKey</code> must come
+	 * 						from the same CSP.
+	 * 																									<p>
+	 * 						Most often, this is the key exchange public key of the destination
+	 * 						user. However, certain protocols in some CSPs require that a session
+	 * 						key belonging to the destination user be used for this purpose.
+	 * 																									<p>
+	 * 						If the key BLOB type specified by <code>dwBlobType</code> is 
+	 * 						<b>PUBLICKEYBLOB</b>, this parameter is unused and must be set to zero.
+	 * 																									<p>
+	 * 						If the key BLOB type specified by <code>dwBlobType</code> is 
+	 * 						<b>PRIVATEKEYBLOB</b>, this is typically a handle to a session key that
+	 * 						is to be used to encrypt the key BLOB. Some CSPs allow this parameter to
+	 * 						be zero, in which case the application must encrypt the private key BLOB
+	 * 						manually so as to protect it.
+	 * 																									<p>
+	 * 						To determine how Microsoft cryptographic service providers respond to
+	 * 						this parameter, see the private key BLOB sections of 						<a href="http://msdn.microsoft.com/en-us/library/aa386983(v=vs.85).aspx">
+	 * 						Microsoft Cryptographic Service Providers</a>.
+	 * 																									<p>
+	 * 						NOTE: Some CSPs may modify this parameter as a result of the operation.
+	 * 						Applications that subsequently use this key for other purposes should
+	 * 						call the {@link #CryptDuplicateKey CryptDuplicateKey} function to create
+	 * 						a duplicate key handle.	When the application has finished using the
+	 * 						handle, release it by calling the {@link #CryptDestroyKey CryptDestroyKey}
+	 * 						function.
+	 * 																									<p>
+	 * @param dwBlobType	Specifies the type of key BLOB to be exported in pbData.
+	 * 																(<b>in</b>		DWORD		)		<br/>
+	 * 						This must be one of the 													{@link JMSCAPI.misc.CryptExportKey_misc#dwBlobType
+	 * 						following} constants as discussed in 										<a href="http://msdn.microsoft.com/en-us/library/aa380242(v=vs.85).aspx">
+	 * 						Cryptographic Key Storage and Exchange</a>.
+	 * 																									<p>
+	 * @param dwFlags		Specifies additional options for the function.	(<b>in</b>	DWORD	)		<br/>
+	 * 						This parameter can be zero or a combination of one or more of the 			{@link JMSCAPI.misc.CryptExportKey_misc#dwFlags 
+	 * 						following}  values.
+	 * 																									<p>
+	 * @param pbData		A pointer to a buffer that receives the key BLOB data. 
+	 * 																(<b>out</b>		BYTE*		)		<br/>
+	 * 						The format of this BLOB varies depending on the BLOB type requested
+	 * 						in the <code>dwBlobType</code> parameter. For the format for
+	 * 						PRIVATEKEYBLOBs, PUBLICKEYBLOBs, and SIMPLEBLOBs, see 						<a href="http://msdn.microsoft.com/en-us/library/aa375601(v=vs.85).aspx">
+	 * 						Base Provider Key BLOBs</a>.
+	 * 																									<p>
+	 * 						If this parameter is <b>NULL</b>, the required buffer size is placed
+	 * 						in the value pointed to by the <code>pdwDataLen</code> parameter.
+	 * 																									<p>
+	 * @param pdwDataLen	A pointer to a DWORD value that, on entry, contains the size, in bytes,
+	 * 						of the buffer pointed to by the <code>pbData</code> parameter.
+	 * 																(<b>inout</b>	DWORD*		)		<br/>
+	 * 						When the function returns, this value contains the number of bytes
+	 * 						stored in the buffer.
+	 * 																									<p>
+	 * 						NOTE:	 When processing the data returned in the buffer, applications
+	 * 						must use the actual size of the data returned. The actual size can be
+	 * 						slightly smaller than the size of the buffer specified on input. On
+	 * 						input, buffer sizes are usually specified large enough to ensure that
+	 * 						the largest possible output data fits in the buffer. On output, the
+	 * 						variable pointed to by this parameter is updated to reflect the actual
+	 * 						size of the data copied to the buffer.
+	 * 																									<p>
+	 * 						To retrieve the required size of the <code>pbData</code> buffer, pass
+	 * 						<b>NULL</b> for <code>pbData</code>. The required buffer size will be
+	 * 						placed in the value pointed to by this parameter.
+	 * 
+	 * @return If the function <b>succeeds</b>, the return value is nonzero <b>(TRUE)</b>.
+	 * If the function <b>fails</b>, the return value is zero <b>(FALSE)</b>. For extended error
+	 * information, call {@link  com.sun.jna.platform.win32.Kernel32#GetLastError() GetLastError}, 
+	 * then see {@link JMSCAPI.misc.CryptExportKey_misc#error_codes error codes}.
+	 */
+	boolean CryptExportKey(
+			HCRYPTKEY hKey,				//in	HCRYPTKEY 	A handle to the key to be exported.
+			HCRYPTKEY hExpKey,			//in	HCRYPTKEY	A handle to a key of the destination user.
+			int dwBlobType,				//in    DWORD 		type of key BLOB 
+			int dwFlags,				//in    DWORD 
+			Pointer pbData,				//out   BYTE*		buffer that receives the key BLOB data.
+			IntByReference pdwDataLen	//inout DWORD*		data length
+			);
+	
+	/**
+	 * TODO CryptExportKey	 
 	 *
-	 * TODO CryptEncrypt			!
 	 */
 	
 	static int fake = 0;
