@@ -942,6 +942,9 @@ public abstract class JMSCAPIUtil {
 			BlockSize = params[0];
 			int BuffLen = params[1];
 			//до сюда, вызывает очень сильные сомнения ибо написан в сонном виде...
+			/*
+			 * уже не вызывает ибо переписан, но не помню как, главное работает...
+			 */
 			
 			byte[] bb = new byte[BlockSize];
 			int readed=0;
