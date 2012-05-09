@@ -1,11 +1,24 @@
 package JMSCAPI.misc;
 
 public interface KeyFlags {
+	
+	/**
+	 * Allows for the import of an RC2 key that is larger than 16 bytes. If this flag is not set, calls
+	 * to the CryptImportKey function with RC2 keys that are greater than 16 bytes fail, and a call to
+	 * GetLastError will return NTE_BAD_DATA.
+	 */
+	public static final int CRYPT_IPSEC_HMAC_KEY = 0x00000100;
+	
+	/**
+	 * This flag causes PKCS #1 version 2 formatting to be created with the RSA encryption and decryption when
+	 * importing/exporting SIMPLEBLOBs.
+	 */
+	public static final int CRYPT_OAEP =   0x00000040;
 
-	/**For <b>CryptGenKey()</b>:
+	/**For <b>CryptGenKey()</b>:<p>
 	 * If this flag is set, then the key is assigned a random salt value automatically. 
 	 * <p>
-	 * For <b>CryptDeriveKey()</b>:
+	 * For <b>CryptDeriveKey()</b>:<p>
 	 * Typically, when a session key is made from a hash value, there are a number of leftover bits.
 	 * For example, if the hash value is 128 bits and the session key is 40 bits, there will be
 	 * 88 bits left over. If this flag is set, then the key is assigned a salt value based on
@@ -21,7 +34,7 @@ public interface KeyFlags {
 	 */
 	public static final int CRYPT_CREATE_SALT       =	0x00000004;
 	
-	/**
+	/**For <b>CryptGenKey()</b>:<p>
 	 * If this flag is set, then the key can be transferred out of the CSP into a key BLOB by
 	 * using the <b>CryptExportKey</b> function. Because session keys generally must be exportable,
 	 * this flag should usually be set when they are created.
@@ -32,7 +45,12 @@ public interface KeyFlags {
 	 * private key cannot be transported or backed up.
 	 * 																									<p>
 	 * This flag applies only to session key and private key BLOBs. It does not apply to public
-	 * keys, which are always exportable.
+	 * keys, which are always exportable.																<p>
+	 * 
+	 * For <b>CryptImportKey()</b>:<p>
+	 * 
+	 * The key being imported is eventually to be reexported. If this flag is not used, then calls
+	 * to CryptExportKey with the key handle fail.
 	 */
 	public static final int CRYPT_EXPORTABLE        =	0x00000001;
 	

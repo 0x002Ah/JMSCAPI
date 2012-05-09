@@ -904,7 +904,68 @@ public interface Advapi32 extends StdCallLibrary,JMSCAPI_misc {
 			IntByReference pdwDataLen	//inout DWORD*		data length
 			);
 	
-	void test();
+	/**
+	 * The <b>CryptImportKey</b> function transfers a cryptographic key from a key BLOB into a
+	 * cryptographic service provider (CSP). This function can be used to import an Schannel session
+	 * key, regular session key, public key, or public/private key pair. For all but the public key,
+	 * the key or key pair is encrypted.
+	 * 
+	 * @param hProv		The handle of a CSP obtained with the CryptAcquireContext function.
+	 * 																									<p>
+	 * @param pbData	A BYTE array that contains a PUBLICKEYSTRUC BLOB header followed by the
+	 * 					encrypted key. This key BLOB is created by the 									{@link #CryptExportKey 
+	 * 					CryptExportKey} function, either in this application or by another
+	 * 					application possibly running on a different computer.
+	 * 																									<p>
+	 * @param dwDataLen	Contains the length, in bytes, of the key BLOB.
+	 * 																									<p>
+	 * @param hPubKey	A handle to the cryptographic key that decrypts the key stored in
+	 * 					<code>pbData.</code>
+	 * 					This key must come from the same CSP to which <code>hProv</code> refers.
+	 * 					The meaning of this parameter differs depending on the CSP type and the
+	 * 					type of key BLOB being imported:												<ul>
+	 * 					<li>If the key BLOB is encrypted with the key exchange key pair, for
+	 * 					example, a <b>SIMPLEBLOB</b>, this parameter can be the handle to the key
+	 * 					exchange key.																	</li>
+	 * 					<li>If the key BLOB is encrypted with a session key, for example, an
+	 * 					encrypted <b>PRIVATEKEYBLOB</b>, this parameter contains the handle of
+	 * 					this session key.																</li>
+	 * 					<li>If the key BLOB is not encrypted, for example, a <b>PUBLICKEYBLOB</b>,
+	 * 					this parameter is not used and must be zero.									</li>
+	 * 					<li>If the key BLOB is encrypted with a session key in an Schannel CSP, for
+	 * 					example, an encrypted <b>OPAQUEKEYBLOB</b> or any other vendor-specific
+	 * 					<b>OPAQUEKEYBLOB</b>, this parameter is not used and must be set to zero.		</li>
+	 * 																									</ul>
+	 * 					NOTE:	Some CSPs may modify this parameter as a result of the operation.
+	 * 					Applications that subsequently use this key for other purposes should call the 	{@link #CryptDuplicateKey
+	 * 					CryptDuplicateKey} function to create a duplicate key handle. When the
+	 * 					application has finished using the handle, release it by calling the 			{@link #CryptDestroyKey
+	 * 					CryptDestroyKey} function.
+	 * 																									<p>
+	 * @param dwFlags	Currently used only when a public/private key pair in the form of a 
+	 * 					<b>PRIVATEKEYBLOB</b> is imported into the CSP. This parameter can be one
+	 * 					of the {@link JMSCAPI.misc.CryptImportKey_misc#dwFlags following} values.
+	 * 																									<p>
+	 * @param phKey		A pointer to a HCRYPTKEY value that receives the handle of the imported
+	 * 					key. When you have finished using the key, release the handle by calling the 	{@link #CryptDestroyKey 
+	 * 					CryptDestroyKey} function.
+	 * 
+	 * @return If the function <b>succeeds</b>, the return value is nonzero <b>(TRUE)</b>.
+	 * If the function <b>fails</b>, the return value is zero <b>(FALSE)</b>. For extended error
+	 * information, call {@link  com.sun.jna.platform.win32.Kernel32#GetLastError() GetLastError}, 
+	 * then see {@link JMSCAPI.misc.CryptImportKey_misc#error_codes error codes}.
+	 * 
+	 * @see	<a href="http://msdn.microsoft.com/en-us/library/aa380207(v=vs.85).aspx">MSDN description</a>
+	 */
+	boolean CryptImportKey(
+			HCRYPTPROV hProv,			//in	HCRYPTPROV	handle of a CSP
+			Pointer   pbData,			//in   	BYTE*		Contains key BLOB
+			int   dwDataLen,			//in 	DWORD 		length, in bytes, of the key BLOB.
+			HCRYPTKEY hPubKey,			//in 	HCRYPTKEY	meaning differs on the CSP and BLOB type
+			int dwFlags,				//in  	DWORD 
+			HCRYPTKEYp phKey			//out	HCRYPTKEY*	pointer to a HCRYPTKEY
+			);
+	
 		
 	static int fake = 0;
 }

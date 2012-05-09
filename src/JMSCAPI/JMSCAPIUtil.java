@@ -531,6 +531,34 @@ public abstract class JMSCAPIUtil {
 		}
 	}
 	
+	public static HCRYPTKEY keyImport(HCRYPTPROV hProv, byte[] data, HCRYPTKEY hPubKey, int dwFlags){
+		
+		 Pointer pbData= new Memory(data.length);
+		 pbData.write(0, data, 0, data.length);
+		 
+		 HCRYPTKEYp phKey=new HCRYPTKEYp();
+		 if(Advapi32.INSTANCE.CryptImportKey(hProv, pbData, data.length, hPubKey, dwFlags, phKey)){
+			 return phKey.getValue();
+		 }		 
+		int err=Kernel32.INSTANCE.GetLastError();
+		throw new JMSCAPIException(err);
+	}
+	
+	public static byte[] keyExport(HCRYPTKEY hKey, HCRYPTKEY hExpKey,int dwBlobType,int dwFlags){
+		IntByReference pdwDataLen = new IntByReference();
+		if(Advapi32.INSTANCE.CryptExportKey(hKey, hExpKey, dwBlobType, dwFlags, null, pdwDataLen)){
+			//System.out.println(pdwDataLen.getValue());
+			Pointer data = new Memory(pdwDataLen.getValue());
+			if(Advapi32.INSTANCE.CryptExportKey(hKey, hExpKey, dwBlobType, dwFlags, data, pdwDataLen)){
+				return data.getByteArray(0, pdwDataLen.getValue());
+			}
+		}
+		int err=Kernel32.INSTANCE.GetLastError();
+		throw new JMSCAPIException(err);
+		
+	}
+	
+	
 	public static void keyDestroy(HCRYPTKEY hKey){
 		if(Advapi32.INSTANCE.CryptDestroyKey(hKey)){
 			return;

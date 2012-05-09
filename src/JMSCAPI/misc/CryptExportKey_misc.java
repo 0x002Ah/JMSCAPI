@@ -65,7 +65,7 @@ public interface CryptExportKey_misc {
 	 * Possible dwFlags:<ul>
 	 * <li>{@link #CRYPT_BLOB_VER3}</li>
 	 * <li>{@link #CRYPT_DESTROYKEY}</li>
-	 * <li>{@link #CRYPT_OAEP}</li>
+	 * <li>{@link KeyFlags#CRYPT_OAEP CRYPT_OAEP}</li>
 	 * <li>{@link #CRYPT_SSL2_FALLBACK}</li>
 	 * <li>{@link #CRYPT_Y_ONLY}</li>
 	 * </ul>
@@ -82,11 +82,7 @@ public interface CryptExportKey_misc {
 	 */
 	public static final int CRYPT_DESTROYKEY =   0x00000004;
 	
-	/**
-	 * This flag causes PKCS #1 version 2 formatting to be created with the RSA encryption and decryption when
-	 * exporting SIMPLEBLOBs.
-	 */
-	public static final int CRYPT_OAEP =   0x00000040;
+
 	
 	/**
 	 * The first eight bytes of the RSA encryption block padding must be set to 0x03 rather than to random data.

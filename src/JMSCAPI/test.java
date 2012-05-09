@@ -32,6 +32,7 @@ import JMSCAPI.demos.CryptEnumProvidersDemo;
 import JMSCAPI.demos.CryptKeysDemo;
 import JMSCAPI.demos.EncryptDecryptDemo;
 import JMSCAPI.demos.HashDemo;
+import JMSCAPI.demos.Importing_a_Plaintext_Key;
 import JMSCAPI.misc.CryptGetProvParam_misc.PROV_ENUMALGS;
 import JMSCAPI.misc.JMSCAPI_misc.HCRYPTHASH;
 import JMSCAPI.misc.JMSCAPI_misc.HCRYPTHASHp;
@@ -70,9 +71,10 @@ public class test {
 		
 		//HashDemo.Run2();
 		
-		EncryptDecryptDemo.Run(420, 26154, 32808, "password");
+		//EncryptDecryptDemo.Run(420, 26154, 32808, "password");
 		//EncryptDecryptDemo.Run(1, Advapi32.CALG_RC2, Advapi32.CALG_SHA1, "password");
 		
+		Importing_a_Plaintext_Key.Run();
 		
 		int err;
 			
