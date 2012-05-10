@@ -27,12 +27,14 @@ import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
 import com.sun.jna.ptr.IntByReference;
 
 import JMSCAPI.Exceptions.JMSCAPIException;
+import JMSCAPI.Exceptions.NoKey;
 import JMSCAPI.demos.CryptAcquireContextDemo;
 import JMSCAPI.demos.CryptEnumProvidersDemo;
 import JMSCAPI.demos.CryptKeysDemo;
 import JMSCAPI.demos.EncryptDecryptDemo;
 import JMSCAPI.demos.HashDemo;
 import JMSCAPI.demos.Importing_a_Plaintext_Key;
+import JMSCAPI.demos.Sign_and_Verify;
 import JMSCAPI.misc.CryptGetProvParam_misc.PROV_ENUMALGS;
 import JMSCAPI.misc.JMSCAPI_misc.HCRYPTHASH;
 import JMSCAPI.misc.JMSCAPI_misc.HCRYPTHASHp;
@@ -74,7 +76,11 @@ public class test {
 		//EncryptDecryptDemo.Run(420, 26154, 32808, "password");
 		//EncryptDecryptDemo.Run(1, Advapi32.CALG_RC2, Advapi32.CALG_SHA1, "password");
 		
-		Importing_a_Plaintext_Key.Run();
+		//Importing_a_Plaintext_Key.Run();
+		Sign_and_Verify.Run();
+		
+
+
 		
 		int err;
 			

@@ -4,10 +4,11 @@ import java.io.PrintStream;
 
 import JMSCAPI.Advapi32;
 //import JMSCAPI_old.Advapi32;
-import JMSCAPI.Kernel32;
+//import JMSCAPI.Kernel32;
 import JMSCAPI.misc.JMSCAPI_misc.HCRYPTPROVp;
 
 
+import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Kernel32Util;
 
 /**

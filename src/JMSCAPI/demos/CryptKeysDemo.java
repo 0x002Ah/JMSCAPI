@@ -4,12 +4,13 @@ import java.io.PrintStream;
 
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
+import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.ptr.IntByReference;
 
 import JMSCAPI.Advapi32;
 import JMSCAPI.JMSCAPIUtil;
-import JMSCAPI.Kernel32;
+//import JMSCAPI.Kernel32;
 import JMSCAPI.misc.JMSCAPI_misc.HCRYPTKEY;
 import JMSCAPI.misc.JMSCAPI_misc.HCRYPTPROV;
 import JMSCAPI.misc.JMSCAPI_misc.HCRYPTKEYp;

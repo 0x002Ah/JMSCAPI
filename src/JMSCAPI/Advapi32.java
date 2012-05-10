@@ -966,6 +966,104 @@ public interface Advapi32 extends StdCallLibrary,JMSCAPI_misc {
 			HCRYPTKEYp phKey			//out	HCRYPTKEY*	pointer to a HCRYPTKEY
 			);
 	
+	/**
+	 * The <b>CryptSignHash</b> function signs data. Because all signature algorithms are asymmetric
+	 * and thus slow, CryptoAPI does not allow data to be signed directly. Instead, data is first
+	 * hashed, and <b>CryptSignHash</b> is used to sign the hash.
+	 * 
+	 * @param hHash			Handle of the hash object to be signed.
+	 * 																									<p>
+	 * @param dwKeySpec		Identifies the private key to use from the provider's container. 			<br/>
+	 * 						It can be AT_KEYEXCHANGE or AT_SIGNATURE. 
+	 * 																									<p>
+	 * 						The signature algorithm used is specified when the key pair is
+	 * 						originally created.
+	 * 																									<p>
+	 * 						The only signature algorithm that the Microsoft Base Cryptographic
+	 * 						Provider supports is the RSA Public Key algorithm.
+	 * 																									<p>
+	 * @param sDescription	This parameter is no longer used and must be set to NULL to prevent
+	 * 						security vulnerabilities. However, it is still supported for backward
+	 * 						compatibility in the Microsoft Base Cryptographic Provider.
+	 * 																									<p>
+	 * @param dwFlags		The {@link JMSCAPI.misc.CryptSignHash_misc#dwFlags following} flag
+	 * 						values are defined.
+	 * 																									<p>
+	 * @param pbSignature	A pointer to a buffer receiving the signature data. 
+	 * 																									<p>
+	 * 						This parameter can be <code>NULL</code> to set the buffer size for
+	 * 						memory allocation purposes.
+	 * 																									<p>
+	 * @param pdwSigLen		A pointer to a DWORD value that specifies the size, in bytes, of the
+	 * 						<code>pbSignature</code> buffer. When the function returns, the DWORD
+	 * 						value contains the number of bytes stored in the buffer.
+	 * 																									<p>
+	 * 						NOTE:	When processing the data returned in the buffer, applications
+	 * 						must use the actual size of the data returned. The actual size can be
+	 * 						slightly smaller than the size of the buffer specified on input. (On
+	 * 						input, buffer sizes are usually specified large enough to ensure that
+	 * 						the largest possible output data fits in the buffer.) On output, the
+	 * 						variable pointed to by this parameter is updated to reflect the actual
+	 * 						size of the data copied to the buffer.
+	 * 
+	 * @return If the function <b>succeeds</b>, the return value is nonzero <b>(TRUE)</b>.
+	 * If the function <b>fails</b>, the return value is zero <b>(FALSE)</b>. For extended error
+	 * information, call {@link  com.sun.jna.platform.win32.Kernel32#GetLastError() GetLastError}, 
+	 * then see {@link JMSCAPI.misc.CryptSignHash_misc#error_codes error codes}.
+	 * 
+	 * @see {@link JMSCAPI.misc.CryptSignHash_misc#remarks Remarks}
+	 */
+	boolean CryptSignHash(
+			HCRYPTHASH hHash,			//in	HCRYPTHASH	Handle of the hash object to be signed.
+			int dwKeySpec,				//in    DWORD 		Identifies the private key to use
+			Pointer sDescription,		//in    LPCTSTR		must be null
+			int dwFlags,				//in    DWORD 
+			Pointer pbSignature,		//out   BYTE*		buffer receiving the signature data.
+			IntByReference pdwSigLen	//inout DWORD*		size of the pbSignature buffer. 
+			);
+	
+	/**
+	 * The <b>CryptVerifySignature</b> function verifies the signature of a hash object.
+	 * 																									<p>
+	 * Before calling this function, {@link #CryptCreateHash} must be called to create the handle
+	 * of a hash object. {@link #CryptHashData} or {@link #CryptHashSessionKey} is then used to
+	 * add data or session keys to the hash object.
+	 * 																									<p>
+	 * After <b>CryptVerifySignature</b> completes, only {@link #CryptDestroyHash} can be called
+	 * by using the <code>hHash</code> handle.
+	 * 
+	 * @param hHash			A handle to the hash object to verify.
+	 * 																									<p>
+	 * @param pbSignature	The address of the signature data to be verified.
+	 * 																									<p>
+	 * @param dwSigLen		The number of bytes in the pbSignature signature data.
+	 * 																									<p>
+	 * @param hPubKey		A handle to the public key to use to authenticate the signature. This
+	 * 						public key must belong to the key pair that was originally used to
+	 * 						create the digital signature.
+	 * 																									<p>
+	 * @param sDescription	This parameter should no longer be used and must be set to <b>NULL</b>
+	 * 						to prevent security vulnerabilities. However, it is still supported
+	 * 						for backward compatibility in the Microsoft Base Cryptographic Provider.
+	 * 																									<p>
+	 * @param dwFlags		The {@link JMSCAPI.misc.CryptVerifySignature_misc#dwFlags following}
+	 * 						flag values are defined.
+	 * 
+	 * @return If the function <b>succeeds</b>, the return value is nonzero <b>(TRUE)</b>.
+	 * If the function <b>fails</b>, the return value is zero <b>(FALSE)</b>. For extended error
+	 * information, call {@link  com.sun.jna.platform.win32.Kernel32#GetLastError() GetLastError}, 
+	 * then see {@link JMSCAPI.misc.CryptVerifySignature_misc#error_codes error codes}.
+	 * 
+	 * @see {@link JMSCAPI.misc.CryptVerifySignature_misc#remarks Remarks}
+	 */
+	boolean CryptVerifySignature(
+			HCRYPTHASH hHash,			//in	HCRYPTHASH	A handle to the hash object to verify.
+			Pointer pbSignature,		//in    BYTE*		address of the signature data to be verified.
+			int dwSigLen,				//in 	DWORD		size of pbSignature
+			HCRYPTKEY hPubKey,			//in 	HCRYPTKEY	public key to use to authenticate the signature
+			Pointer sDescription,		//in    LPCTSTR		must be null
+			int dwFlags					//in  	DWORD 
+			);
 		
 	static int fake = 0;
 }

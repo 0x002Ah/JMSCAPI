@@ -11,6 +11,7 @@ import java.io.PrintStream;
 import java.util.LinkedList;
 import JMSCAPI.Exceptions.CancelledByUser;
 import JMSCAPI.Exceptions.JMSCAPIException;
+import JMSCAPI.Exceptions.NoKey;
 import JMSCAPI.Exceptions.NotImplemented;
 import JMSCAPI.misc.JMSCAPI_misc.HCRYPTHASH;
 import JMSCAPI.misc.JMSCAPI_misc.HCRYPTHASHp;
@@ -493,7 +494,15 @@ public abstract class JMSCAPIUtil {
 			return phUserKey.getValue();
 		}
 		int err=Kernel32.INSTANCE.GetLastError();
-		throw new JMSCAPIException(err);
+		//System.out.print(err);
+
+		if (err==Kernel32.NTE_NO_KEY){
+			throw new NoKey();
+		}else{
+			throw new JMSCAPIException(err);
+		}
+
+		//throw new JMSCAPIException(err);
 	}
 	
 	public static HCRYPTKEY keyGenerate(HCRYPTPROV hProv,int KeySpec){
@@ -564,6 +573,9 @@ public abstract class JMSCAPIUtil {
 			return;
 		}
 		int err=Kernel32.INSTANCE.GetLastError();
+		
+		System.out.println(err);
+		
 		throw new JMSCAPIException(err);
 	}
 	
@@ -651,7 +663,7 @@ public abstract class JMSCAPIUtil {
 		if(!Advapi32.INSTANCE.CryptDestroyHash(hHash)){
 			int err=Kernel32.INSTANCE.GetLastError();
 			throw new JMSCAPIException(err);
-		}
+		}		
 	}
 	
 	/**
@@ -833,6 +845,12 @@ public abstract class JMSCAPIUtil {
 		return hHash;
 	}
 	
+	public static HCRYPTHASH hashCreate(HCRYPTPROV hProv,int  algid, byte[] data){
+		HCRYPTHASH hHash = hashCreate(hProv,  algid);
+		hashAddData(hHash, data);
+		return hHash;
+	}
+	
 	public static HCRYPTHASH hashDuplicate(HCRYPTHASH hHash){
 		HCRYPTHASHp phHash = new HCRYPTHASHp();
 		if(Advapi32.INSTANCE.CryptDuplicateHash(hHash, 0, 0, phHash)){
@@ -1004,6 +1022,37 @@ public abstract class JMSCAPIUtil {
 					e.printStackTrace();
 				}
 		}
+		
+	}
+	
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	public static byte[] signHash(HCRYPTHASH hHash,int dwKeySpec,int dwFlags){
+		
+		IntByReference pdwSigLen = new IntByReference();
+		if(JMSCAPI.Advapi32.INSTANCE.CryptSignHash(hHash, dwKeySpec, null, dwFlags, null, pdwSigLen )){
+			Pointer sign = new Memory(pdwSigLen.getValue());
+			if(JMSCAPI.Advapi32.INSTANCE.CryptSignHash(hHash, dwKeySpec, null, dwFlags, sign, pdwSigLen )){
+				return sign.getByteArray(0, pdwSigLen.getValue());
+			}
+		}
+		int err=Kernel32.INSTANCE.GetLastError();
+		throw new JMSCAPIException(err);
+		
+	}
+	
+	public static boolean signVerify(HCRYPTHASH hHash, byte[] signature,HCRYPTKEY hPubKey, int dwFlags){
+		
+		Pointer sign = new Memory(signature.length);
+		sign.write(0, signature, 0, signature.length);
+		
+		if(JMSCAPI.Advapi32.INSTANCE.CryptVerifySignature(hHash, sign, signature.length,
+				hPubKey, null, dwFlags)) return true;
+		
+		int err=Kernel32.INSTANCE.GetLastError(); 
+		if (err==Kernel32.NTE_BAD_SIGNATURE) return false;
+		
+		throw new JMSCAPIException(err);
 		
 	}
 	
