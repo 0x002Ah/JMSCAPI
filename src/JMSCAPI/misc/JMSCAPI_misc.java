@@ -21,7 +21,10 @@ public interface JMSCAPI_misc extends
 							CryptDecrypt_misc,
 							CryptEncrypt_misc,
 							CryptDeriveKey_misc,
-							CryptExportKey_misc
+							CryptExportKey_misc,
+							CryptImportKey_misc,
+							CryptSignHash_misc,
+							CryptVerifySignature_misc
 
 
 																		{
