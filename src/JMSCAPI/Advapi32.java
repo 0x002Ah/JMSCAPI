@@ -143,11 +143,8 @@ public interface Advapi32 extends StdCallLibrary,JMSCAPI_misc {
 	 * 
 	 * @return	If the function <b>succeeds</b>, the return value is nonzero <b>(TRUE)</b>.
 	 * If the function <b>fails</b>, the return value is zero <b>(FALSE)</b>. For extended error
-	 * information, call {@link com.sun.jna.platform.win32.Kernel32#GetLastError() GetLastError},
-	 * 
-	 * 
-	 * then see {@link JMSCAPI.misc.CryptReleaseContext_misc#error_codes error codes}.
-	 * 
+	 * information, call {@link com.sun.jna.platform.win32.Kernel32#GetLastError() GetLastError}, 
+	 * then see {@link JMSCAPI.misc.CryptReleaseContext_misc#error_codes error codes}. 
 	 *																							
 	 */
 	boolean CryptReleaseContext(

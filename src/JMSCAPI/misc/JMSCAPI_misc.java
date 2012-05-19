@@ -40,6 +40,14 @@ public interface JMSCAPI_misc extends
 	
 	public static final int CALG_RC4 = 0x00006801;
 	
+	public static final int CALG_DSS_SIGN = 0x00002200;
+	
+	public static final int STB_1176_2=8236;	//STB 1176.2 key
+	
+	public static final int GOST_28147=26154;	//GOST 28147 key
+	
+	public static final int STB_1176_1 = 32808; //STB 1176.1 hash
+	
 	
     public static class HCRYPTPROV extends HANDLE{
         public HCRYPTPROV() {

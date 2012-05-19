@@ -20,13 +20,14 @@ public class JMSCAPIException extends RuntimeException {
 
 	}
 
-	public JMSCAPIException(String arg0) {
+	private JMSCAPIException(String arg0) {
 		super(arg0);
 		// TODO Auto-generated constructor stub
 	}
 	
 	public JMSCAPIException(int errorCode) {
-		super(Kernel32Util.formatMessageFromLastErrorCode(errorCode));
+		super("error #"+errorCode+
+				Kernel32Util.formatMessageFromLastErrorCode(errorCode));
 		this.error = errorCode;
 		
 	}

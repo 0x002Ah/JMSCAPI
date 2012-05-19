@@ -13,6 +13,7 @@ import JMSCAPI.Exceptions.CancelledByUser;
 import JMSCAPI.Exceptions.JMSCAPIException;
 import JMSCAPI.Exceptions.NoKey;
 import JMSCAPI.Exceptions.NotImplemented;
+import JMSCAPI.misc.JMSCAPI_misc;
 import JMSCAPI.misc.JMSCAPI_misc.HCRYPTHASH;
 import JMSCAPI.misc.JMSCAPI_misc.HCRYPTHASHp;
 import JMSCAPI.misc.JMSCAPI_misc.HCRYPTKEY;
@@ -176,8 +177,10 @@ public abstract class JMSCAPIUtil {
 	 * Prints containers available to given context.
 	 * NOTE: List of available containers depends on whether 											{@link JMSCAPI.misc.CryptAcquireContext_misc#CRYPT_MACHINE_KEYSET 
 	 * CRYPT_MACHINE_KEYSET} flag, was set on context acquiring stage, or not. 
-	 * @param hProv
-	 * @param out
+	 * @param hProv		Handle of CSP
+	 * @param out		Stream where to containers will be printed.
+	 * 
+	 * @see JMSCAPI.Advapi32#CryptGetProvParam CryptGetProvParam
 	 */
 	public static void contextPrintContainers(HCRYPTPROV hProv, PrintStream out){
 		Pointer pbData = null;
@@ -208,8 +211,10 @@ public abstract class JMSCAPIUtil {
 	 * Enumerates containers available to given context.
 	 * NOTE: List of available containers depends on whether 											{@link JMSCAPI.misc.CryptAcquireContext_misc#CRYPT_MACHINE_KEYSET 
 	 * CRYPT_MACHINE_KEYSET} flag, was set on context acquiring stage, or not. 
-	 * @param hProv
-	 * @return
+	 * @param hProv		Handle of CSP
+	 * @return			List of containers names.
+	 * 
+	 * @see JMSCAPI.Advapi32#CryptGetProvParam CryptGetProvParam
 	 */
 	public static LinkedList<String> contextEnumContainers(HCRYPTPROV hProv){
 		LinkedList<String> result = new LinkedList<String>();
@@ -247,8 +252,10 @@ public abstract class JMSCAPIUtil {
 	/**
 	 * Checks if {@link JMSCAPI.misc.CryptAcquireContext_misc#CRYPT_MACHINE_KEYSET
 	 * CRYPT_MACHINE_KEYSET} flag was set on context acquiring stage.
-	 * @param hProv
-	 * @return
+	 * @param hProv	Handle of CSP
+	 * @return <b>True</b> if set, and <b>False</b> if not.
+	 * 
+	 * @see JMSCAPI.Advapi32#CryptGetProvParam CryptGetProvParam
 	 */
 	public static Boolean contextIsMachineKeyset(HCRYPTPROV hProv){
 		Pointer pbData = new Memory(4);
@@ -266,9 +273,13 @@ public abstract class JMSCAPIUtil {
 //////////////////////////////////////////////////////////////////////////////////////////////////	
 	
 	/**
-	 * Returns provider name
-	 * @param hProv
-	 * @return
+	 * Returns provider name as String.
+	 * This string is identical to the one passed in the <code>provider</code> parameter of the
+	 * <b>contextAcquire</b> or <b>contextVerify</b> function to specify that the current CSP be used.
+	 * @param hProv		Handle of CSP
+	 * @return			Provider name
+	 * 
+	 * @see JMSCAPI.Advapi32#CryptGetProvParam CryptGetProvParam
 	 */
 	public static String providerGetName(HCRYPTPROV hProv){
 		IntByReference pdwDataLen = new IntByReference();
@@ -287,10 +298,13 @@ public abstract class JMSCAPIUtil {
 	
 	/**
 	 * Returns provider type.
-	 * @param hProv
-	 * @return
+	 * @param hProv		Handle of CSP
+	 * @return			An int value that indicates the provider type of the CSP.
+
+	 * 
+	 * @see JMSCAPI.Advapi32#CryptGetProvParam CryptGetProvParam
 	 */
-	public static Integer providerGetType(HCRYPTPROV hProv){
+	public static int providerGetType(HCRYPTPROV hProv){
 		Pointer pbData = new Memory(4);
 		IntByReference pdwDataLen = new IntByReference(4);
 
@@ -305,8 +319,14 @@ public abstract class JMSCAPIUtil {
 	
 	/**
 	 * Prints info about supported by provider algorithms.
-	 * @param hProv
-	 * @param out
+	 * 																										<p>
+	 * This function is not thread safe, and all of the available algorithms might not be enumerated
+	 * if this function is used in a multithreaded context.
+
+	 * @param hProv		Handle of CSP
+	 * @param out		List of supported algorithms, their algIDs and default key length.
+	 * 
+	 * @see JMSCAPI.Advapi32#CryptGetProvParam CryptGetProvParam
 	 */
 	public static void providerPrintAlgs(HCRYPTPROV hProv, PrintStream out){
 		Advapi32.PROV_ENUMALGS algs = new Advapi32.PROV_ENUMALGS();		
@@ -336,8 +356,15 @@ public abstract class JMSCAPIUtil {
 	
 	/**
 	 * Prints extended info about supported by provider algorithms
-	 * @param hProv
-	 * @param out
+	 * 																										<p>
+	 * This function is not thread safe, and all of the available algorithms might not be enumerated
+	 * if this function is used in a multithreaded context.
+
+	 * @param hProv		Handle of CSP
+	 * @param out		List of supported algorithms, their algIDs,protocols,minimum, maximum
+	 * 					and default key length.
+	 * 
+	 * @see JMSCAPI.Advapi32#CryptGetProvParam CryptGetProvParam
 	 */
 	public static void providerPrintAlgs_EX(HCRYPTPROV hProv, PrintStream out){
 		Advapi32.PROV_ENUMALGS_EX algs = new Advapi32.PROV_ENUMALGS_EX();		
@@ -419,10 +446,11 @@ public abstract class JMSCAPIUtil {
 ///////////////////////////////////////////////////////////////////////////////////////////////
 	
 	/**
-	 * Checks existence of container within given context
-	 * @param hProv
-	 * @param container
-	 * @return
+	 * Checks existence of container within given context. Based on 									{@link #contextEnumContainers
+	 * contextEnumContainers}.
+	 * @param hProv		Handle of CSP.
+	 * @param container	Container name.
+	 * @return <b>True</b> if such container exists, and <b>false</b> if not.
 	 */
 	public static Boolean containerExists(HCRYPTPROV hProv, String container){
 		LinkedList<String> containers = contextEnumContainers(hProv);		
@@ -431,8 +459,10 @@ public abstract class JMSCAPIUtil {
 	
 	/**
 	 * Returns current container name
-	 * @param hProv
-	 * @return
+	 * @param hProv		Handle of CSP.
+	 * @return Name of <i>current</i> container.
+	 * 
+	 * @see JMSCAPI.Advapi32#CryptGetProvParam CryptGetProvParam
 	 */
 	public static String containerGetName(HCRYPTPROV hProv){
 		IntByReference pdwDataLen = new IntByReference();
@@ -454,8 +484,11 @@ public abstract class JMSCAPIUtil {
 	
 	/**
 	 * Returns current container unique name.
-	 * @param hProv
-	 * @return
+	 * @param hProv		Handle of CSP.
+	 * @return Unique name of <i>current</i> container. It may differ from <b>containerGetName</b>
+	 * in some CSPs.
+	 * 
+	 * @see JMSCAPI.Advapi32#CryptGetProvParam CryptGetProvParam
 	 */
 	public static String containerGetUniqName(HCRYPTPROV hProv){
 		Pointer pbData = null;
@@ -473,6 +506,19 @@ public abstract class JMSCAPIUtil {
 		}
 	}
 	
+	/**
+	 * Delete the key container specified by <b>container</b> name string.
+	 * If <b>container</b> is <code>null</code>, the key container with the default name is
+	 * deleted. All key pairs in the key container are also destroyed. 
+	 * 																											<p>
+	 * When this function called, the value in hProv is undefined, and thus, the <b>contextRelease</b>
+	 * function need not be called afterward. 
+	 * 
+	 * @param hProv		Handle of CSP.
+	 * @param container	Name of container to be deleted.
+	 * 
+	 * @see JMSCAPI.Advapi32#CryptAcquireContextW CryptAcquireContext.
+	 */
 	public static void containerDelete(HCRYPTPROV hProv, String container){
 		if(containerExists(hProv, container)){
 			if(Advapi32.INSTANCE.CryptAcquireContextW(new HCRYPTPROVp(hProv), container,
@@ -487,6 +533,18 @@ public abstract class JMSCAPIUtil {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////	
 	
+	/**
+	 * This function retrieves a handle of one of a user's two public/private key pairs.  
+	 * 																									<p>
+	 * When you have finished using the key, delete the handle by calling the 							{@link #keyDestroy 
+	 * keyDestroy} function.
+
+	 * @param hProv		Handle of CSP.
+	 * @param KeySpec	AT_KEYEXCHANGE or AT_SIGNATURE. 
+	 * @return	A handle of the retrieved keys.
+	 * 
+	 * @see JMSCAPI.Advapi32#CryptGetUserKey CryptGetUserKey
+	 */
 	public static HCRYPTKEY keyGetUsers(HCRYPTPROV hProv,int KeySpec){
 		HCRYPTKEYp	phUserKey = new HCRYPTKEYp();
 		
@@ -505,10 +563,33 @@ public abstract class JMSCAPIUtil {
 		//throw new JMSCAPIException(err);
 	}
 	
-	public static HCRYPTKEY keyGenerate(HCRYPTPROV hProv,int KeySpec){
+	/**
+	 * @see #keyGenerate(HCRYPTPROV, int, int)
+	 */
+	public static HCRYPTKEY keyGenerate(HCRYPTPROV hProv,int algID){
+		return keyGenerate(hProv, algID, 0);
+	}
+	
+	/**
+	 * This function generates a random cryptographic session key or a public/private key pair.
+	 * 																										<p>
+	 * The calling application must specify the algorithm when calling this function. Because
+	 * this algorithm type is kept bundled with the key, the application does not need to specify
+	 * the algorithm later when the actual cryptographic operations are performed.
+	 * 
+	 * @param hProv		Handle of CSP.
+	 * @param algID		An ALG_ID value that identifies the algorithm for which the key is to be
+	 * 					generated.
+	 * @param dwFlags	Specifies the type of key generated. 
+	 * @return A handle to the key or key pair. This handle can then be used as needed with any
+	 * CryptoAPI function that requires a key handle. 
+	 * 
+	 * @see JMSCAPI.Advapi32#CryptGenKey(HCRYPTPROV, int, int, HCRYPTKEYp)
+	 */
+	public static HCRYPTKEY keyGenerate(HCRYPTPROV hProv,int algID, int dwFlags){
 		HCRYPTKEYp	phUserKey = new HCRYPTKEYp();
 		
-		if(Advapi32.INSTANCE.CryptGenKey(hProv, KeySpec, 0, phUserKey)){
+		if(Advapi32.INSTANCE.CryptGenKey(hProv, algID, 0, phUserKey)){
 			return phUserKey.getValue();
 		}
 		int err=Kernel32.INSTANCE.GetLastError();
@@ -516,21 +597,29 @@ public abstract class JMSCAPIUtil {
 	}
 	
 	/**
+	 * This function generates cryptographic session keys derived from a base data value. 
+	 * 																										<p>
+	 * This function is the same as <b>keyGenerate</b>, except that the generated session keys are
+	 * derived from base data instead of being random. <b>keyDerive</b> can only be used to generate
+	 * session keys. It cannot generate public/private key pairs. 
 	 * 
-	 * @param hProv
-	 * @param KeySpec
-	 * @param hashAlgID
-	 * @param password
-	 * @param dwFlags
-	 * @return
+	 * @param hProv		Handle of CSP.
+	 * @param algID		An ALG_ID that identifies the symmetric encryption algorithm for which the
+	 * 					key is to be generated.
+	 * @param hashAlgID	An ALG_ID that identifies which hash algorithm will be used.
+	 * @param password	String that will be used as base data for key generation.
+	 * @param dwFlags	Specifies the type of key generated.
+	 * @return A handle to the session key. This handle can then be used as needed with any
+	 * CryptoAPI function that requires a key handle. 
+	 * 
 	 * @see JMSCAPI.Advapi32#CryptDeriveKey
 	 */
-	public static HCRYPTKEY keyDerive(HCRYPTPROV hProv,int KeySpec,
+	public static HCRYPTKEY keyDerive(HCRYPTPROV hProv,int algID,
 			int hashAlgID,String password, int dwFlags){
 		HCRYPTHASH hBaseData = hashCreate(hProv, hashAlgID, password);
 		try{
 			HCRYPTKEYp phKey=new HCRYPTKEYp();
-			if(Advapi32.INSTANCE.CryptDeriveKey(hProv, KeySpec, hBaseData, dwFlags, phKey)){
+			if(Advapi32.INSTANCE.CryptDeriveKey(hProv, algID, hBaseData, dwFlags, phKey)){
 				return phKey.getValue();
 			}
 			int err=Kernel32.INSTANCE.GetLastError();
@@ -540,6 +629,25 @@ public abstract class JMSCAPIUtil {
 		}
 	}
 	
+	/**
+	 * This function transfers a cryptographic key from a key BLOB into a cryptographic service
+	 * provider (CSP). This function can be used to import an Schannel session key, regular
+	 * session key, public key, or public/private key pair. For all but the public key, the key
+	 * or key pair is encrypted.
+
+	 * @param hProv		Handle of CSP.
+	 * @param data		A BYTE array that contains a PUBLICKEYSTRUC BLOB header followed by the
+	 * 					encrypted key. This key BLOB is created by the <b>keyExport</b> function,
+	 * 					either in this application or by another application possibly running on
+	 * 					a different computer. 
+	 * @param hPubKey	A handle to the cryptographic key that decrypts the key stored in
+	 * 					<code>data</code>.
+	 * @param dwFlags	Used only when a public/private key pair in the form of a PRIVATEKEYBLOB
+	 * 					is imported into the CSP.
+	 * @return			Handle of the imported key.
+	 * 
+	 * @see JMSCAPI.Advapi32#CryptImportKey	CryptImportKey
+	 */
 	public static HCRYPTKEY keyImport(HCRYPTPROV hProv, byte[] data, HCRYPTKEY hPubKey, int dwFlags){
 		
 		 Pointer pbData= new Memory(data.length);
@@ -553,6 +661,18 @@ public abstract class JMSCAPIUtil {
 		throw new JMSCAPIException(err);
 	}
 	
+	/**
+	 * This function exports a cryptographic key or a key pair from a cryptographic service
+	 * provider (CSP) in a secure manner. 
+	 * 
+	 * @param hKey			A handle to the key to be exported.
+	 * @param hExpKey		A handle to a cryptographic key of the destination user.
+	 * @param dwBlobType	Specifies the type of key BLOB to be exported.
+	 * @param dwFlags		Specifies additional options for the function. 
+	 * @return Key BLOB.
+	 * 
+	 * @see JMSCAPI.Advapi32#CryptExportKey CryptExportKey
+	 */
 	public static byte[] keyExport(HCRYPTKEY hKey, HCRYPTKEY hExpKey,int dwBlobType,int dwFlags){
 		IntByReference pdwDataLen = new IntByReference();
 		if(Advapi32.INSTANCE.CryptExportKey(hKey, hExpKey, dwBlobType, dwFlags, null, pdwDataLen)){
@@ -567,7 +687,14 @@ public abstract class JMSCAPIUtil {
 		
 	}
 	
-	
+	/**
+	 * This function releases the handle referenced by the hKey parameter. After a key handle has been
+	 * released, it is no longer valid and cannot be used again. 
+	 * 
+	 * @param hKey		The handle of the key to be destroyed.
+	 * 
+	 * @see JMSCAPI.Advapi32#CryptDestroyKey CryptDestroyKey
+	 */
 	public static void keyDestroy(HCRYPTKEY hKey){
 		if(Advapi32.INSTANCE.CryptDestroyKey(hKey)){
 			return;
@@ -579,6 +706,14 @@ public abstract class JMSCAPIUtil {
 		throw new JMSCAPIException(err);
 	}
 	
+	/**
+	 * Retrieve the key algorithm.
+	 * @param hKey		The handle of the key being queried.
+	 * @return	ALG_ID value that identifies the algorithm that was specified when the key was created.
+	 * 
+	 * @see JMSCAPI.Advapi32#CryptGetKeyParam CryptGetKeyParam
+	 * @see JMSCAPI.misc.CryptGetKeyParam_misc#KP_ALGID KP_ALGID
+	 */
 	public static int keyGetAlgID(HCRYPTKEY hKey){
 		Pointer pbData = new Memory(4);
 		
@@ -590,6 +725,17 @@ public abstract class JMSCAPIUtil {
 		throw new JMSCAPIException(err);
 	}
 	
+	/**
+	 * If a session key is specified by the hKey parameter, retrieve the block length of the key cipher.
+	 * If a public/private key pair is specified by hKey, retrieve the encryption granularity of the key pair.
+	 * 
+	 * @param hKey		The handle of the key being queried.
+	 * @return Block length, in bits. (For stream ciphers, this value is always zero.) Encryption granularity,
+	 * in bits for a public/private key pair.
+	 * 
+	 * @see JMSCAPI.Advapi32#CryptGetKeyParam CryptGetKeyParam
+	 * @see JMSCAPI.misc.CryptGetKeyParam_misc#KP_BLOCKLEN KP_BLOCKLEN
+	 */
 	public static int keyGetBlokLen(HCRYPTKEY hKey){
 		Pointer pbData = new Memory(4);
 		
@@ -602,9 +748,11 @@ public abstract class JMSCAPIUtil {
 	}
 	
 	/**
+	 * Retrieve the actual length of the key. 
+	 * @param hKey		The handle of the key being queried.
+	 * @return Actual size of the key, including the parity bits included in the key. 
 	 * 
-	 * @param hKey
-	 * @return
+	 * @see JMSCAPI.Advapi32#CryptGetKeyParam CryptGetKeyParam
 	 * @see JMSCAPI.misc.CryptGetKeyParam_misc#KP_KEYLEN KP_KEYLEN
 	 */
 	public static int keyGetLen(HCRYPTKEY hKey){
@@ -618,6 +766,15 @@ public abstract class JMSCAPIUtil {
 		throw new JMSCAPIException(err);
 	}
 	
+	/**
+	 * Retrieve the effective key length of an RC2 key.
+	 * 
+	 * @param hKey		The handle of the key being queried.
+	 * @return	Effective key length of an RC2 key.
+	 * 
+	 * @see JMSCAPI.Advapi32#CryptGetKeyParam CryptGetKeyParam
+	 * @see JMSCAPI.misc.CryptGetKeyParam_misc#KP_EFFECTIVE_KEYLEN KP_EFFECTIVE_KEYLEN
+	 */
 	public static int keyGetEffectiveLen(HCRYPTKEY hKey){
 		Pointer pbData = new Memory(4);
 		
@@ -629,6 +786,15 @@ public abstract class JMSCAPIUtil {
 		throw new JMSCAPIException(err);
 	}
 	
+	/**
+	 * Retrieve the key permissions
+	 * 
+	 * @param hKey		The handle of the key being queried.
+	 * @return	<code>int</code> value that holds the permission flags for the key. 
+	 * 
+	 * @see JMSCAPI.Advapi32#CryptGetKeyParam CryptGetKeyParam
+	 * @see JMSCAPI.misc.CryptGetKeyParam_misc#KP_PERMISSIONS
+	 */
 	public static int keyGetPermissions(HCRYPTKEY hKey){
 		Pointer pbData = new Memory(4);
 		
@@ -644,9 +810,11 @@ public abstract class JMSCAPIUtil {
 	
 	/**
 	 * Creates empty hash object.
-	 * @param hProv
-	 * @param algid
-	 * @return
+	 * @param hProv		Handle of CSP.
+	 * @param algid		An ALG_ID value that identifies the hash algorithm to use. 
+	 * @return  A handle to a CSP hash object.
+	 * 
+	 * @see JMSCAPI.Advapi32#CryptCreateHash CryptCreateHash
 	 */
 	public static HCRYPTHASH hashCreate(HCRYPTPROV hProv,int  algid){
 		HCRYPTHASHp phHash = new HCRYPTHASHp();
@@ -659,6 +827,14 @@ public abstract class JMSCAPIUtil {
 		}
 	}
 	
+	/**
+	 * This function destroys the hash object referenced by the hHash parameter. After a hash object
+	 * has been destroyed, it can no longer be used. 
+	 * 
+	 * @param hHash		The handle of the hash object to be destroyed.
+	 * 
+	 * @see JMSCAPI.Advapi32#CryptDestroyHash	CryptDestroyHash
+	 */
 	public static void hashDestroy(HCRYPTHASH hHash){
 		if(!Advapi32.INSTANCE.CryptDestroyHash(hHash)){
 			int err=Kernel32.INSTANCE.GetLastError();
@@ -669,6 +845,11 @@ public abstract class JMSCAPIUtil {
 	/**
 	 * Adds data to a specified hash object.
 	 * Can be called multiple times to compute the hash of long or discontinuous data streams.
+	 * 
+	 * @param hHash		Handle of the hash object. 
+	 * @param data		String to be hashed.
+	 * 
+	 * @see JMSCAPI.Advapi32#CryptHashData CryptHashData
 	 */
 	public static void hashAddData(HCRYPTHASH hHash,String data){
 		Pointer pbData = new Memory(data.length()+1);
@@ -682,8 +863,14 @@ public abstract class JMSCAPIUtil {
 	
 	/**
 	 * Adds data to a specified hash object.
-	 * Can be called multiple times to compute the hash of long or discontinuous data streams.
-	 * <code>Data</code> field must contain ONLY actual data to be hashed.
+	 * Can be called multiple times to compute the hash of long or discontinuous data streams.<p>
+	 * <code>Data</code> field must contain ONLY actual data to be hashed. Size of buffer can`t exceed
+	 * size of data.
+	 * 
+	 * @param hHash		Handle of the hash object. 
+	 * @param data		Data to be hashed.
+	 * 
+	 * @see JMSCAPI.Advapi32#CryptHashData CryptHashData
 	 */
 	public static void hashAddData(HCRYPTHASH hHash,byte[] data){
 		Pointer pbData = new Memory(data.length+1);
@@ -696,10 +883,13 @@ public abstract class JMSCAPIUtil {
 	}
 	
 	/**
+	 * Adds data to a specified hash object.
+	 * Can be called multiple times to compute the hash of long or discontinuous data streams.
+	 * @param hHash		Handle of the hash object. 
+	 * @param data		Buffer with data to be hashed.
+	 * @param dataLen	Actual size of data to be hashed.
 	 * 
-	 * @param hHash
-	 * @param data
-	 * @param dataLen
+	 * @see JMSCAPI.Advapi32#CryptHashData CryptHashData
 	 */
 	public static void hashAddData(HCRYPTHASH hHash,byte[] data, int dataLen){
 		Pointer pbData = new Memory(dataLen);
@@ -712,9 +902,11 @@ public abstract class JMSCAPIUtil {
 	}
 	
 	/**
-	 * Returns AlgID of hash.
-	 * @param hHash
-	 * @return
+	 * Returns ALG_ID that indicates the algorithm specified when the hash object was created.
+	 * @param hHash		Handle of the hash object. 
+	 * @return AlgID of hash.
+	 * 
+	 * @see JMSCAPI.Advapi32#CryptGetHashParam CryptGetHashParam
 	 */
 	public static int hashGetAlgID (HCRYPTHASH hHash){
 		Pointer pbData = new Memory(4);
@@ -731,9 +923,11 @@ public abstract class JMSCAPIUtil {
 	
 	/**
 	 * Performs actual hashing on hash object. If CSP support 											{@link JMSCAPI.Advapi32#CryptDuplicateHash 
-	 * CryptDuplicateHash} method, uses it and hash object stays reusable.
-	 * @param hHash
-	 * @return
+	 * CryptDuplicateHash} method, uses it and hash object stays reusable. Otherwise it completes the hash.
+	 * @param hHash		Handle of the hash object.
+	 * @return The hash value or message hash for the hash object specified by hHash.
+	 * 
+	 * @see JMSCAPI.Advapi32#CryptGetHashParam CryptGetHashParam
 	 */
 	public static byte[] hash(HCRYPTHASH hHash){		
 		HCRYPTHASH dHash = null;
@@ -765,11 +959,17 @@ public abstract class JMSCAPIUtil {
 	}
 	
 	/**
-	 * Creates hash object, adds data to it and performs hashing.
-	 * @param hProv
-	 * @param algid
-	 * @param data
-	 * @return
+	 * Creates hash object, adds data to it and performs hashing, whereupon destroys hash object.
+	 * @param hProv		Handle of CSP.
+	 * @param algid		An ALG_ID value that identifies the hash algorithm to use. 
+	 * @param data		String to be hashed.
+	 * @return The hash value.
+	 * 
+	 * @see #hashCreate hashCreate
+	 * @see #hashAddData hashAddData
+	 * @see #hash hash
+	 * @see #hashDestroy hashDestroy
+	 * 
 	 */
 	public static byte[] hash(HCRYPTPROV hProv,int  algid, String data){
 		HCRYPTHASH hHash = hashCreate(hProv,  algid);
@@ -783,11 +983,17 @@ public abstract class JMSCAPIUtil {
 	}
 	
 	/**
-	 * Creates hash object, adds data to it and performs hashing.
-	 * @param hProv
-	 * @param algid
-	 * @param data
-	 * @return
+	 * Creates hash object, adds data to it and performs hashing, whereupon destroys hash object.
+	 * @param hProv		Handle of CSP.
+	 * @param algid		An ALG_ID value that identifies the hash algorithm to use. 
+	 * @param data		Data to be hashed.
+	 * @return The hash value.
+	 * 
+	 * @see #hashCreate hashCreate
+	 * @see #hashAddData hashAddData
+	 * @see #hash hash
+	 * @see #hashDestroy hashDestroy
+	 * 
 	 */
 	public static byte[] hash(HCRYPTPROV hProv,int  algid, byte[] data){
 		HCRYPTHASH hHash = hashCreate(hProv,  algid);
@@ -801,7 +1007,14 @@ public abstract class JMSCAPIUtil {
 	}
 	
 
-	
+	/**
+	 * Hashes whole file by reading it by blocks.
+	 * Use BufferedStream.
+	 * @param hProv		Handle of CSP.
+	 * @param algid		An ALG_ID value that identifies the hash algorithm to use. 
+	 * @param in		File.
+	 * @return	The hash value.
+	 */
 	public static byte[] hash(HCRYPTPROV hProv,int  algid, File in) {
 		int BlockSize=4096;								//!!!!!!!!!!!!!!!!!!!!!!
 		BufferedInputStream inF=null;
@@ -838,19 +1051,42 @@ public abstract class JMSCAPIUtil {
 	}
 	
 	
-	
+	/**
+	 * Creates hash object, adds data to it, but does not complete the hash. 
+	 * @param hProv		Handle of CSP.
+	 * @param algid		An ALG_ID value that identifies the hash algorithm to use. 
+	 * @param data		Data to be hashed.
+	 * @return Handle of hash object.
+	 */
 	public static HCRYPTHASH hashCreate(HCRYPTPROV hProv,int  algid, String data){
 		HCRYPTHASH hHash = hashCreate(hProv,  algid);
 		hashAddData(hHash, data);
 		return hHash;
 	}
 	
+	/**
+	 * Creates hash object, adds data to it, but does not complete the hash. 
+	 * @param hProv		Handle of CSP.
+	 * @param algid		An ALG_ID value that identifies the hash algorithm to use. 
+	 * @param data		Data to be hashed.
+	 * @return Handle of hash object.
+	 */
 	public static HCRYPTHASH hashCreate(HCRYPTPROV hProv,int  algid, byte[] data){
 		HCRYPTHASH hHash = hashCreate(hProv,  algid);
 		hashAddData(hHash, data);
 		return hHash;
 	}
 	
+	
+	/**
+	 * This function makes an exact copy of a hash to the point when the duplication is done. The
+	 * duplicate hash includes the state of the hash. 
+	 * 
+	 * @param hHash	Handle of hash object to be duplicated.
+	 * @return Exact copy of given hash object.
+	 * 
+	 * @see JMSCAPI.Advapi32#CryptDuplicateHash CryptDuplicateHash
+	 */
 	public static HCRYPTHASH hashDuplicate(HCRYPTHASH hHash){
 		HCRYPTHASHp phHash = new HCRYPTHASHp();
 		if(Advapi32.INSTANCE.CryptDuplicateHash(hHash, 0, 0, phHash)){

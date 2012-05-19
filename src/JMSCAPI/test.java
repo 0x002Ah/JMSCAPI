@@ -28,6 +28,8 @@ import com.sun.jna.ptr.IntByReference;
 
 import JMSCAPI.Exceptions.JMSCAPIException;
 import JMSCAPI.Exceptions.NoKey;
+import JMSCAPI.Providers.Avest.Key;
+import JMSCAPI.Providers.Avest.Provider;
 import JMSCAPI.demos.CryptAcquireContextDemo;
 import JMSCAPI.demos.CryptEnumProvidersDemo;
 import JMSCAPI.demos.CryptKeysDemo;
@@ -77,14 +79,48 @@ public class test {
 		//EncryptDecryptDemo.Run(1, Advapi32.CALG_RC2, Advapi32.CALG_SHA1, "password");
 		
 		//Importing_a_Plaintext_Key.Run();
-		Sign_and_Verify.Run();
+		//Sign_and_Verify.Run();
 		
 
 
 		
 		int err;
 			
-		//HCRYPTPROV hProv = JMSCAPIUtil.contextVerify(null, 420);
+		///*
+		Provider p = new Provider(1);
+		
+		//System.out.println(p.getHashType());
+				
+		Key k = new Key(p);
+		
+		//System.out.println(k.getKeyType());
+		
+		byte[] blob = p.exportPublicKey(k);
+		
+		String data = "Some data";
+		
+		byte[] sign = p.sign(data.getBytes(), k);
+		
+		System.out.println("signed");
+		
+		Key pk = p.importPublicKey(blob);
+		
+		System.out.println(p.verify(data.getBytes(), sign, pk));
+		//*/
+		
+		
+		/*
+		HCRYPTPROV hProv = JMSCAPIUtil.contextVerify(null, 1);
+		
+		HCRYPTKEY key= JMSCAPIUtil.keyDerive(hProv, JMSCAPI.Advapi32.AT_SIGNATURE,
+				JMSCAPI.Advapi32.CALG_SHA1, "pass", 0);
+		//HCRYPTKEY key= JMSCAPIUtil.keyGenerate(hProv, JMSCAPI.Advapi32.AT_KEYEXCHANGE);
+		//HCRYPTKEY key= JMSCAPIUtil.keyDerive(hProv, JMSCAPI.Advapi32.AT_SIGNATURE,
+		//		JMSCAPI.Advapi32.STB_1176_1, "pass", 0);
+		//HCRYPTHASH hBaseData = JMSCAPIUtil.hashCreate(hProv, JMSCAPI.Advapi32.STB_1176_1, "pass");
+		//System.out.println(JMSCAPIUtil.keyGetAlgID(key));
+		//*/
+		
 		
 		//System.out.println(JMSCAPIUtil.GetProvName(hProv));
 		//System.out.println(JMSCAPIUtil.GetContName(hProv));		
